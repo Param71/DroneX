@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DroneX Simulation</title>
+    
+    <!-- Pre-flight Check -->
+    <script>
+        if (!localStorage.getItem('pilotName')) {
+            window.location.href = '/garage.html';
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/hud.css">
+    
+    <!-- Import Map for Three.js -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+    
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.10.1/nipplejs.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-color); z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--neon-cyan); font-family: var(--font-main);">
+        <h1 class="neon-title">DroneX</h1>
+        <p style="margin-bottom: 20px;">INITIALIZING SIMULATION...</p>
+        <div style="width: 300px; height: 5px; background: rgba(0, 245, 255, 0.2); border: 1px solid var(--neon-cyan);">
+            <div id="loading-bar-fill" style="width: 0%; height: 100%; background: var(--neon-cyan); transition: width 0.1s linear;"></div>
+        </div>
+        <p id="loading-text-complete" style="display:none; font-size: 1.5rem; animation: blink 1.5s infinite; cursor: pointer; margin-top: 20px;">CLICK TO INITIATE</p>
+    </div>
+
+    <!-- HUD Overlay -->
+    <div id="hud"></div>
+
+    <!-- Start Mission Button -->
+    <button id="btn-start-mission" style="position: fixed; top: 100px; right: 30px; pointer-events: auto; background-color: rgba(10,10,15,0.8); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); font-family: var(--font-main); font-size: 1.2rem; padding: 10px 20px; cursor: pointer; text-shadow: 0 0 5px var(--neon-cyan); z-index: 11;">START MISSION</button>
+
+    <!-- Back to Mode Select Button -->
+    <button id="btn-back-mode" style="position: fixed; top: 150px; left: 30px; pointer-events: auto; background-color: rgba(10,10,15,0.5); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); font-family: var(--font-main); font-size: 0.9rem; padding: 5px 10px; cursor: pointer; z-index: 11;">&#x2190; BACK</button>
+
+    <!-- Low Quality Toggle -->
+    <button id="btn-quality" style="position: fixed; top: 200px; left: 30px; pointer-events: auto; background-color: rgba(10,10,15,0.5); border: 1px solid #aaa; color: #aaa; font-family: var(--font-main); font-size: 0.9rem; padding: 5px 10px; cursor: pointer; z-index: 11;">PERF: HIGH</button>
+
+    <!-- Mission End Overlays -->
+    <div id="mission-end-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10,10,15,0.9); z-index: 20; display: flex; flex-direction: column; justify-content: center; align-items: center; font-family: var(--font-main);">
+        <h1 id="mission-end-title" style="font-size: 4rem; text-shadow: 0 0 20px; margin-bottom: 20px;">MISSION COMPLETE</h1>
+        <div id="mission-stats" style="font-size: 1.5rem; color: var(--neon-cyan); text-align: center; margin-bottom: 40px;">
+            <p id="mission-time">Time: 00.00s</p>
+            <p id="mission-best-time">Best: 00.00s</p>
+            <p id="mission-leaderboard-pos" style="color: var(--neon-green); font-size: 1.2rem; margin-top: 10px;"></p>
+        </div>
+        <div style="display: flex; gap: 20px; pointer-events: auto;">
+            <button id="btn-restart-mission" style="background: none; border: 2px solid var(--neon-green); color: var(--neon-green); font-family: var(--font-main); font-size: 1.2rem; padding: 15px 30px; cursor: pointer; transition: all 0.2s;">TRY AGAIN</button>
+            <button id="btn-change-mode" style="background: none; border: 2px solid var(--neon-cyan); color: var(--neon-cyan); font-family: var(--font-main); font-size: 1.2rem; padding: 15px 30px; cursor: pointer; transition: all 0.2s;">CHANGE MODE</button>
+            <button id="btn-garage" style="background: none; border: 2px solid #aaa; color: #aaa; font-family: var(--font-main); font-size: 1.2rem; padding: 15px 30px; cursor: pointer; transition: all 0.2s;">GARAGE</button>
+        </div>
+    </div>
+
+    <!-- FPV Overlay -->
+    <div id="fpv-overlay" style="display: none;">
+        <div id="fpv-label">FPV</div>
+    </div>
+
+    <!-- Main Module -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

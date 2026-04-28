@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DroneX Controller</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/controller.css">
+    
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <!-- Session Code Entry Screen -->
+    <div id="pairing-screen" style="position: absolute; top:0; left:0; width:100%; height:100%; background: #0a0a0f; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Share Tech Mono', monospace;">
+        <h2 style="color: #00f5ff; text-shadow: 0 0 10px #00f5ff;">ENTER SESSION CODE</h2>
+        <div style="display:flex; gap: 10px; margin: 20px 0;">
+            <input type="number" class="code-digit" pattern="\d*" style="width: 50px; height: 60px; font-size: 2rem; text-align: center; background: transparent; border: 2px solid #00f5ff; color: #fff;">
+            <input type="number" class="code-digit" pattern="\d*" style="width: 50px; height: 60px; font-size: 2rem; text-align: center; background: transparent; border: 2px solid #00f5ff; color: #fff;">
+            <input type="number" class="code-digit" pattern="\d*" style="width: 50px; height: 60px; font-size: 2rem; text-align: center; background: transparent; border: 2px solid #00f5ff; color: #fff;">
+            <input type="number" class="code-digit" pattern="\d*" style="width: 50px; height: 60px; font-size: 2rem; text-align: center; background: transparent; border: 2px solid #00f5ff; color: #fff;">
+        </div>
+        <button id="btn-connect" style="background: #00f5ff; border: none; font-family: 'Share Tech Mono', monospace; font-size: 1.5rem; padding: 10px 40px; cursor: pointer; color: #000; font-weight: bold;">CONNECT</button>
+        <div id="pairing-error" style="color: #ff3333; margin-top: 15px; text-shadow: 0 0 5px #ff3333; font-size: 1.2rem;"></div>
+    </div>
+
+    <!-- Top Status Bar -->
+    <div id="status-bar">
+        <div class="status-item"><span id="conn-dot" class="dot red"></span></div>
+        <div class="status-item">ALT: <span id="alt-val">0.0</span>m</div>
+        <div class="status-item">SPD: <span id="spd-val">0</span>km/h</div>
+        <div class="status-item">BAT: <span id="bat-val">100</span>%</div>
+    </div>
+
+    <!-- Background for Camera/Yaw control -->
+    <div id="touch-bg"></div>
+
+    <!-- Main Control Area -->
+    <div id="control-area">
+        <!-- Left Slider (Throttle) -->
+        <div class="slider-container" id="throttle-slider">
+            <button class="slider-btn up" data-axis="throttle" data-val="1">▲</button>
+            <button class="slider-btn down" data-axis="throttle" data-val="-1">▼</button>
+        </div>
+
+        <!-- Center Menu Buttons -->
+        <div id="center-menu">
+            <button id="btn-fpv" class="menu-btn">FPV</button>
+            <button id="btn-tilt" class="menu-btn">TILT</button>
+            <button id="btn-garage" class="menu-btn">GARAGE</button>
+            <button id="btn-pause" class="menu-btn">PAUSE</button>
+            <button id="btn-music" class="menu-btn">MUSIC</button>
+            <button id="btn-settings" class="menu-btn">SETTING</button>
+        </div>
+
+        <!-- Right D-Pad -->
+        <div class="dpad" id="dpad-right">
+            <button class="dpad-btn up" data-axis="pitch" data-val="-1">▲</button>
+            <button class="dpad-btn down" data-axis="pitch" data-val="1">▼</button>
+            <button class="dpad-btn left" data-axis="roll" data-val="-1">◀</button>
+            <button class="dpad-btn right" data-axis="roll" data-val="1">▶</button>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        
+        // Pairing logic
+        const pairingScreen = document.getElementById('pairing-screen');
+        const digits = document.querySelectorAll('.code-digit');
+        const btnConnect = document.getElementById('btn-connect');
+        const pairingError = document.getElementById('pairing-error');
+
+        digits.forEach((d, i) => {
+            d.addEventListener('input', () => {
+                if(d.value.length > 1) d.value = d.value.slice(0,1);
+                if(d.value.length === 1 && i < 3) digits[i+1].focus();
+            });
+            d.addEventListener('keydown', (e) => {
+                if(e.key === 'Backspace' && d.value === '' && i > 0) {
+                    digits[i-1].focus();
+                    digits[i-1].value = '';
+                }
+            });
+        });
+
+        btnConnect.addEventListener('click', () => {
+            let code = Array.from(digits).map(d => d.value).join('');
+            if(code.length === 4) {
+                btnConnect.innerText = "CONNECTING...";
+                socket.emit('session:join', { code });
+            } else {
+                pairingError.innerText = "Please enter 4 digits.";
+            }
+        });
+
+        socket.on('session:joined', () => {
+            pairingScreen.style.display = 'none';
+        });
+
+        socket.on('session:error', (msg) => {
+            pairingError.innerText = msg;
+            btnConnect.innerText = "CONNECT";
+        });
+
+        const connDot = document.getElementById('conn-dot');
+        const altVal = document.getElementById('alt-val');
+        const spdVal = document.getElementById('spd-val');
+        const batVal = document.getElementById('bat-val');
+        
+        let controls = { throttle: 0, pitch: 0, roll: 0, yaw: 0 };
+        let tiltActive = false;
+        let baseline_beta = 0;
+        let baseline_gamma = 0;
+        let gyroCalibrationNeeded = false;
+
+        socket.on('connect', () => connDot.classList.replace('red', 'green'));
+        socket.on('disconnect', () => {
+            connDot.classList.replace('green', 'red');
+            pairingScreen.style.display = 'flex'; // show pairing again if disconnected
+        });
+        socket.on('drone:status', (data) => {
+            altVal.innerText = data.altitude;
+            spdVal.innerText = data.speed;
+            batVal.innerText = Math.round(data.battery);
+        });
+
+        function emitControls() {
+            socket.emit('drone:control', controls);
+        }
+        setInterval(emitControls, 50);
+
+        // Button Logic (Throttle Slider + Right D-Pad)
+        const allBtns = document.querySelectorAll('.dpad-btn, .slider-btn');
+        allBtns.forEach(btn => {
+            const handlePress = (e) => {
+                e.preventDefault();
+                if(tiltActive && (btn.dataset.axis === 'pitch' || btn.dataset.axis === 'roll')) return;
+                controls[btn.dataset.axis] = parseFloat(btn.dataset.val);
+                btn.classList.add('active');
+                emitControls();
+            };
+            const handleRelease = (e) => {
+                e.preventDefault();
+                if(tiltActive && (btn.dataset.axis === 'pitch' || btn.dataset.axis === 'roll')) return;
+                controls[btn.dataset.axis] = 0;
+                btn.classList.remove('active');
+                emitControls();
+            };
+
+            btn.addEventListener('touchstart', handlePress, {passive: false});
+            btn.addEventListener('touchend', handleRelease, {passive: false});
+            btn.addEventListener('mousedown', handlePress);
+            btn.addEventListener('mouseup', handleRelease);
+            btn.addEventListener('mouseleave', handleRelease);
+        });
+
+        // Menu Buttons
+        document.getElementById('btn-fpv').addEventListener('click', function() {
+            this.classList.toggle('active');
+            socket.emit('drone:toggleFPV');
+        });
+        
+        document.getElementById('btn-tilt').addEventListener('click', async function() {
+            if (!tiltActive) {
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    try {
+                        const permission = await DeviceOrientationEvent.requestPermission();
+                        if (permission === 'granted') enableTilt(this);
+                    } catch (e) {
+                        enableTilt(this);
+                    }
+                } else {
+                    enableTilt(this);
+                }
+            } else {
+                disableTilt(this);
+            }
+        });
+
+        document.getElementById('btn-garage').addEventListener('click', () => socket.emit('drone:menu', 'garage'));
+
+        document.getElementById('btn-pause').addEventListener('click', function() {
+            this.classList.toggle('active');
+            socket.emit('drone:menu', 'pause');
+        });
+        document.getElementById('btn-music').addEventListener('click', function() {
+            this.classList.toggle('active');
+            socket.emit('drone:menu', 'music');
+        });
+        document.getElementById('btn-settings').addEventListener('click', () => socket.emit('drone:menu', 'settings'));
+
+        function enableTilt(btn) {
+            tiltActive = true;
+            gyroCalibrationNeeded = true;
+            btn.classList.add('active');
+            window.addEventListener('deviceorientation', handleOrientation);
+            controls.roll = 0; controls.pitch = 0;
+        }
+
+        function disableTilt(btn) {
+            tiltActive = false;
+            btn.classList.remove('active');
+            window.removeEventListener('deviceorientation', handleOrientation);
+            controls.roll = 0; controls.pitch = 0;
+            emitControls();
+        }
+
+        function normalizeGyro(value, range, deadzone) {
+            const normalized = Math.max(-1, Math.min(1, value / range));
+            if (Math.abs(normalized) < deadzone) return 0;
+            return (normalized - Math.sign(normalized) * deadzone) / (1 - deadzone);
+        }
+
+        function handleOrientation(event) {
+            if (!tiltActive) return;
+            if (gyroCalibrationNeeded) {
+                baseline_beta = event.beta;
+                baseline_gamma = event.gamma;
+                gyroCalibrationNeeded = false;
+                return;
+            }
+            controls.pitch = normalizeGyro(event.beta - baseline_beta, 30, 0.12);
+            controls.roll = normalizeGyro(event.gamma - baseline_gamma, 30, 0.12);
+        }
+
+        // Background Touch Yaw Logic
+        const touchBg = document.getElementById('touch-bg');
+        let touchYawStartX = null;
+        let touchYawIdentifier = null;
+
+        touchBg.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                if (touchYawIdentifier === null) {
+                    touchYawIdentifier = e.changedTouches[i].identifier;
+                    touchYawStartX = e.changedTouches[i].clientX;
+                }
+            }
+        }, {passive: false});
+
+        touchBg.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                if (e.changedTouches[i].identifier === touchYawIdentifier) {
+                    let diffX = e.changedTouches[i].clientX - touchYawStartX;
+                    // Normalize -1 to 1 based on 100px swipe
+                    controls.yaw = Math.max(-1, Math.min(1, diffX / 100));
+                    emitControls();
+                }
+            }
+        }, {passive: false});
+
+        function endYawTouch(e) {
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                if (e.changedTouches[i].identifier === touchYawIdentifier) {
+                    touchYawIdentifier = null;
+                    touchYawStartX = null;
+                    controls.yaw = 0;
+                    emitControls();
+                }
+            }
+        }
+
+        touchBg.addEventListener('touchend', endYawTouch);
+        touchBg.addEventListener('touchcancel', endYawTouch);
+    </script>
+</body>
+</html>

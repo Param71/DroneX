@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DroneX - Select Mode</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-cyan: #00f5ff;
+            --neon-green: #39ff14;
+            --font-main: 'Share Tech Mono', monospace;
+            --bg-color: #0a0a0f;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--neon-cyan);
+            font-family: var(--font-main);
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            transition: opacity 0.3s;
+        }
+        .neon-title {
+            font-size: 4rem; text-shadow: 0 0 20px var(--neon-cyan); margin-bottom: 50px;
+            text-align: center;
+        }
+        .cards-container {
+            display: flex; gap: 40px; justify-content: center; width: 90%; max-width: 1000px;
+        }
+        .mode-card {
+            flex: 1; border: 2px solid rgba(0, 245, 255, 0.3); padding: 40px 20px; cursor: pointer; 
+            text-align: center; transition: all 0.3s; background: rgba(0,0,0,0.6);
+            border-radius: 8px; position: relative;
+        }
+        .mode-card:hover { 
+            border-color: var(--neon-cyan); 
+            box-shadow: 0 0 30px rgba(0, 245, 255, 0.3), inset 0 0 20px rgba(0,245,255,0.1); 
+            transform: scale(1.02); 
+            background: rgba(0, 245, 255, 0.05);
+        }
+        .mode-card h2 { 
+            margin: 0 0 15px 0; color: var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan); font-size: 2.5rem;
+        }
+        .mode-card p { font-size: 1.2rem; color: #ccc; margin: 0; }
+        
+        .best-time {
+            margin-top: 30px; font-size: 1.5rem; color: var(--neon-green); text-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .btn-back {
+            position: absolute; top: 30px; left: 30px;
+            background: transparent; border: 1px solid var(--neon-cyan); color: var(--neon-cyan); 
+            font-family: var(--font-main); font-size: 1.2rem; padding: 10px 20px; cursor: pointer; 
+            transition: all 0.2s;
+        }
+        .btn-back:hover { background: rgba(0, 245, 255, 0.2); box-shadow: 0 0 10px rgba(0, 245, 255, 0.5); }
+        .keyboard-hint { font-size: 0.9rem; color: #555; position: absolute; bottom: 20px; }
+    </style>
+</head>
+<body>
+    <button class="btn-back" id="btn-back">&larr; GARAGE</button>
+
+    <h1 class="neon-title">SELECT MODE</h1>
+    
+    <div class="cards-container">
+        <!-- GAME MODE -->
+        <div class="mode-card" id="card-game">
+            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="var(--neon-cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px; filter: drop-shadow(0 0 5px var(--neon-cyan));"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle></svg>
+            <h2>RACE MODE</h2>
+            <p>Fly through rings. Beat the clock.</p>
+            <div class="best-time" id="best-time-display">BEST: --</div>
+        </div>
+
+        <!-- FREEFLY MODE -->
+        <div class="mode-card" id="card-freefly">
+            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="var(--neon-cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px; filter: drop-shadow(0 0 5px var(--neon-cyan));"><path d="M12 2L2 22l10-4 10 4L12 2z"></path></svg>
+            <h2>FREEFLY</h2>
+            <p>Explore the world. No limits.</p>
+        </div>
+    </div>
+
+    <div class="keyboard-hint">Press [1] Race | [2] Freefly | [ESC] Back</div>
+
+    <script>
+        // Init Best Time
+        const bestTime = localStorage.getItem('personalBest');
+        if(bestTime) {
+            document.getElementById('best-time-display').innerText = `BEST: ${parseFloat(bestTime).toFixed(2)}s`;
+        }
+
+        function navigateTo(url) {
+            document.body.style.opacity = '0';
+            setTimeout(() => window.location.href = url, 300);
+        }
+
+        document.getElementById('card-game').addEventListener('click', () => navigateTo('/game.html'));
+        document.getElementById('card-freefly').addEventListener('click', () => navigateTo('/freefly.html'));
+        document.getElementById('btn-back').addEventListener('click', () => navigateTo('/garage.html'));
+
+        window.addEventListener('keydown', (e) => {
+            if(e.key === '1') navigateTo('/game.html');
+            if(e.key === '2') navigateTo('/freefly.html');
+            if(e.key === 'Escape') navigateTo('/garage.html');
+        });
+    </script>
+</body>
+</html>

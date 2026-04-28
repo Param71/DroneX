@@ -1,0 +1,272 @@
+/* ── DroneX Garage — Premium Cyberpunk Theme ── */
+@keyframes gridScroll { from { background-position: 0 0; } to { background-position: 0 60px; } }
+@keyframes glowPulse { 0%,100%{ box-shadow: 0 0 8px var(--accent); } 50%{ box-shadow: 0 0 22px var(--accent); } }
+@keyframes fadeInUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+@keyframes blink { 0%,100%{ opacity:1; } 50%{ opacity:.3; } }
+
+:root {
+    --accent: #00f5ff;
+    --accent-dim: rgba(0,245,255,.15);
+    --green: #39ff14;
+    --bg: #06060c;
+    --panel: rgba(10,10,18,.88);
+    --border: rgba(0,245,255,.22);
+    --font-display: 'Orbitron', sans-serif;
+    --font-mono: 'Share Tech Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
+
+body {
+    background: var(--bg);
+    color: #e0e0e0;
+    font-family: var(--font-mono);
+    display: flex; flex-direction: column; align-items: center;
+    overflow-x: hidden;
+    min-height: 100vh;
+    transition: opacity .3s;
+}
+
+/* ── Animated Grid Background ── */
+.bg-grid {
+    position: fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:
+        linear-gradient(rgba(0,245,255,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,245,255,.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridScroll 4s linear infinite;
+}
+
+/* ── Header ── */
+header { position:relative; z-index:2; text-align:center; padding: 48px 0 10px; }
+.logo {
+    font-family: var(--font-display);
+    font-size: 4.2rem; font-weight:900; letter-spacing:6px;
+    color: #fff;
+    text-shadow: 0 0 30px var(--accent), 0 0 60px rgba(0,245,255,.3);
+}
+.logo span { color: var(--accent); }
+.tagline { font-size:.85rem; letter-spacing:4px; color: rgba(255,255,255,.4); margin-top:4px; }
+
+/* ── Container ── */
+.container {
+    position:relative; z-index:2;
+    width: 92%; max-width: 860px;
+    display: flex; flex-direction: column; gap: 28px;
+    padding-bottom: 60px;
+}
+
+/* ── Panels ── */
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px 28px;
+    backdrop-filter: blur(12px);
+    animation: fadeInUp .5s ease both;
+}
+.panel:nth-child(2){ animation-delay:.08s; }
+.panel:nth-child(3){ animation-delay:.16s; }
+.panel:nth-child(4){ animation-delay:.24s; }
+
+.panel h2 {
+    font-family: var(--font-display);
+    font-size: 1.05rem; font-weight:700; letter-spacing:3px;
+    color: var(--accent);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px; margin-bottom:18px;
+    display:flex; align-items:center; gap:10px;
+}
+.panel-icon { font-size:1.2rem; }
+
+/* ── Pilot Input ── */
+#pilot-name {
+    width:100%; padding:12px 16px;
+    background: rgba(0,0,0,.5);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--accent); font-family: var(--font-mono); font-size:1.3rem;
+    letter-spacing:2px;
+    text-shadow: 0 0 6px var(--accent);
+    transition: border-color .2s, box-shadow .2s;
+}
+#pilot-name:focus {
+    outline:none;
+    border-color: var(--accent);
+    box-shadow: 0 0 16px var(--accent-dim);
+}
+
+/* ── Drone Selection Grid ── */
+.drone-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+.drone-card {
+    position:relative;
+    background: rgba(0,0,0,.55);
+    border: 2px solid rgba(255,255,255,.08);
+    border-radius: 8px;
+    padding: 16px 12px;
+    text-align:center;
+    cursor: pointer;
+    transition: all .18s ease;
+    overflow:hidden;
+}
+.drone-card::before {
+    content:'';
+    position:absolute; inset:0;
+    background: radial-gradient(circle at 50% 120%, var(--card-color) , transparent 70%);
+    opacity:0;
+    transition: opacity .25s;
+}
+.drone-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,.18); }
+.drone-card:hover::before { opacity:.12; }
+
+.drone-card.selected {
+    border-color: var(--card-color);
+    box-shadow: 0 0 18px color-mix(in srgb, var(--card-color) 40%, transparent);
+}
+.drone-card.selected::before { opacity:.2; }
+
+.dc-icon { font-size:1.8rem; display:block; margin-bottom:6px; position:relative; z-index:1; }
+.dc-name {
+    font-family: var(--font-display); font-size:.78rem; font-weight:700;
+    letter-spacing:1px; color:#fff; position:relative; z-index:1;
+}
+.dc-class { font-size:.65rem; color: rgba(255,255,255,.4); margin-top:2px; position:relative; z-index:1; }
+
+/* ── Intel Panel ── */
+.intel-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
+.intel-drone-name {
+    font-family: var(--font-display); font-size:1.6rem; font-weight:900;
+    letter-spacing:2px; margin:0; border:none; padding:0;
+    color: var(--accent);
+    text-shadow: 0 0 12px var(--accent);
+    transition: color .3s, text-shadow .3s;
+}
+.intel-badge {
+    display:inline-block;
+    background: var(--accent);
+    color:#000; font-size:.7rem; font-weight:bold;
+    padding: 2px 10px; border-radius:3px; margin-top:6px;
+    letter-spacing:1px;
+    transition: background .3s;
+}
+.intel-big-icon { font-size:2.8rem; line-height:1; }
+.intel-desc { color: rgba(255,255,255,.55); font-size:.88rem; margin-bottom:18px; line-height:1.5; }
+
+/* ── Stat Bars ── */
+.stat-bars { display:flex; flex-direction:column; gap:10px; }
+.stat-row { display:flex; align-items:center; gap:10px; }
+.stat-label { width:70px; font-size:.75rem; letter-spacing:1px; color: rgba(255,255,255,.5); }
+.bar-track {
+    flex:1; height:10px;
+    background: rgba(255,255,255,.06);
+    border-radius:5px; overflow:hidden;
+    border: 1px solid rgba(255,255,255,.08);
+}
+.bar-fill {
+    height:100%; width:0%;
+    border-radius:5px;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    transition: width .45s cubic-bezier(.4,0,.2,1), background .3s, box-shadow .3s;
+}
+.stat-val { width:28px; text-align:right; font-size:.78rem; color: var(--accent); font-weight:bold; transition: color .3s; }
+
+/* ── Customization ── */
+.custom-row { display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:16px; }
+.custom-label { font-size:.8rem; letter-spacing:2px; color: rgba(255,255,255,.45); white-space:nowrap; }
+
+.color-options { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.color-picker-input {
+    width:36px; height:36px; border:none; background:none; cursor:pointer;
+    border-radius:50%; overflow:hidden; padding:0;
+}
+.color-swatch {
+    width:28px; height:28px; border-radius:50%; border:2px solid rgba(255,255,255,.15);
+    cursor:pointer; transition: transform .15s, border-color .15s, box-shadow .15s;
+}
+.color-swatch:hover { transform:scale(1.2); }
+.color-swatch.active { border-color:#fff; box-shadow: 0 0 10px currentColor; transform:scale(1.15); }
+
+/* ── 3D Preview ── */
+.preview-container {
+    width:100%; height:280px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow:hidden;
+    position:relative;
+}
+.preview-container canvas { display:block; width:100%!important; height:100%!important; }
+
+/* ── Launch Button ── */
+.btn-launch {
+    align-self:center;
+    display:flex; align-items:center; gap:14px;
+    padding: 16px 52px;
+    background: linear-gradient(135deg, rgba(0,245,255,.12), rgba(57,255,20,.08));
+    border: 2px solid var(--accent);
+    border-radius: 6px;
+    color: var(--accent);
+    font-family: var(--font-display); font-size:1.4rem; font-weight:700;
+    letter-spacing:4px;
+    cursor:pointer;
+    text-shadow: 0 0 10px var(--accent);
+    animation: glowPulse 2.5s ease-in-out infinite;
+    transition: transform .15s, background .2s;
+}
+.btn-launch:hover { transform:scale(1.06); background: rgba(0,245,255,.2); }
+.btn-launch-arrow { font-size:1.6rem; transition: transform .2s; }
+.btn-launch:hover .btn-launch-arrow { transform:translateX(4px); }
+
+/* ── Session Panel ── */
+#session-panel {
+    position:fixed; top:20px; left:20px; z-index:50;
+    background: rgba(6,6,12,.92);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px; width:200px;
+    backdrop-filter: blur(10px);
+    animation: fadeInUp .4s ease both;
+}
+.sp-label { font-size:.7rem; letter-spacing:3px; color: rgba(255,255,255,.4); margin-bottom:6px; }
+#session-code-display {
+    font-family: var(--font-display); font-size:2.2rem; font-weight:900;
+    letter-spacing:6px; color:#fff;
+    text-shadow: 0 0 14px #fff;
+    margin-bottom:4px;
+}
+#session-status { font-size:.72rem; color: #eab308; margin-bottom:10px; }
+
+.btn-pill {
+    display:inline-block; width:100%; padding:7px 0;
+    border-radius:4px; font-family: var(--font-mono); font-size:.75rem;
+    cursor:pointer; letter-spacing:1px; transition: all .15s; border:1px solid var(--border);
+    text-align:center;
+}
+.btn-accent { background: var(--accent); color:#000; border-color: var(--accent); font-weight:bold; margin-bottom:6px; }
+.btn-accent:hover { filter:brightness(1.2); }
+.btn-ghost { background:transparent; color: var(--accent); }
+.btn-ghost:hover { background: var(--accent-dim); }
+.sp-row { display:flex; gap:6px; }
+.sp-row .btn-pill { flex:1; }
+
+/* ── Leaderboard ── */
+.leaderboard-table { width:100%; border-collapse:collapse; margin-top:10px; }
+.leaderboard-table th, .leaderboard-table td { padding:8px; text-align:left; border-bottom:1px solid rgba(255,255,255,.06); font-size:.85rem; }
+.leaderboard-table th { color: var(--green); font-family: var(--font-display); font-size:.72rem; letter-spacing:2px; }
+.rank-1 { color:#ffd700; text-shadow:0 0 6px #ffd700; }
+.rank-2 { color:#c0c0c0; text-shadow:0 0 6px #c0c0c0; }
+.rank-3 { color:#cd7f32; text-shadow:0 0 6px #cd7f32; }
+.row-me { background:rgba(0,245,255,.08); }
+
+/* ── Responsive ── */
+@media (max-width:640px) {
+    .logo { font-size:2.6rem; }
+    .drone-grid { grid-template-columns: repeat(2, 1fr); }
+    #session-panel { position:relative; top:auto; left:auto; width:100%; margin:16px auto 0; }
+    .panel { padding:16px; }
+    .intel-drone-name { font-size:1.2rem; }
+}

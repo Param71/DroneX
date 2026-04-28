@@ -1,0 +1,159 @@
+:root {
+    --bg-dark: #0a0a0f;
+    --neon-cyan: #00f5ff;
+    --neon-green: #39ff14;
+    --alert-red: #ff2d2d;
+    --font-main: 'Share Tech Mono', monospace;
+}
+
+body, html {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    background-color: var(--bg-dark);
+    font-family: var(--font-main);
+    color: var(--neon-cyan);
+    overflow: hidden;
+    user-select: none; -webkit-user-select: none;
+    touch-action: none;
+}
+
+#status-bar {
+    position: fixed; top: 0; left: 0; width: 100%; height: 40px;
+    background-color: rgba(10, 10, 15, 0.9);
+    border-bottom: 1px solid var(--neon-cyan);
+    display: flex; justify-content: space-around; align-items: center;
+    font-size: 1.1rem; color: var(--neon-green);
+    text-shadow: 0 0 5px var(--neon-green);
+}
+
+.dot { height: 12px; width: 12px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
+.dot.red { color: var(--alert-red); background-color: var(--alert-red); }
+.dot.green { color: var(--neon-green); background-color: var(--neon-green); }
+
+#control-area {
+    position: absolute; top: 40px; bottom: 0; left: 0; width: 100%;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 20px; box-sizing: border-box;
+    z-index: 10;
+    pointer-events: none; /* Let touches pass through to touch-bg */
+}
+
+/* Background Touch Area */
+#touch-bg {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 1;
+    touch-action: none; /* Prevent scrolling when dragging */
+}
+
+/* Ensure buttons receive touches */
+.slider-btn, .dpad-btn, .menu-btn {
+    pointer-events: auto;
+}
+
+/* D-Pad Styling */
+.dpad {
+    position: relative;
+    width: 150px; height: 150px;
+    background: rgba(0, 245, 255, 0.05);
+    border-radius: 50%;
+    border: 1px solid rgba(0, 245, 255, 0.2);
+}
+
+.dpad-btn {
+    position: absolute;
+    width: 50px; height: 50px;
+    background: rgba(0, 245, 255, 0.1);
+    border: 1px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+    font-size: 24px;
+    border-radius: 8px;
+    display: flex; justify-content: center; align-items: center;
+    cursor: pointer;
+    box-shadow: inset 0 0 10px rgba(0, 245, 255, 0.2);
+    outline: none;
+    z-index: 5;
+}
+
+.dpad-btn.active {
+    background: var(--neon-cyan);
+    color: var(--bg-dark);
+    box-shadow: 0 0 15px var(--neon-cyan);
+}
+
+.dpad-btn.up { top: -10px; left: 50%; transform: translateX(-50%); }
+.dpad-btn.down { bottom: -10px; left: 50%; transform: translateX(-50%); }
+.dpad-btn.left { top: 50%; left: -10px; transform: translateY(-50%); }
+.dpad-btn.right { top: 50%; right: -10px; transform: translateY(-50%); }
+
+#dpad-right .dpad-btn {
+    border-color: var(--neon-green);
+    color: var(--neon-green);
+    background: rgba(57, 255, 20, 0.1);
+    box-shadow: inset 0 0 10px rgba(57, 255, 20, 0.2);
+}
+#dpad-right .dpad-btn.active {
+    background: var(--neon-green);
+    color: var(--bg-dark);
+    box-shadow: 0 0 15px var(--neon-green);
+}
+
+/* Throttle Slider Styling */
+.slider-container {
+    position: relative;
+    width: 80px; height: 200px;
+    background: rgba(0, 245, 255, 0.05);
+    border-radius: 40px;
+    border: 1px solid rgba(0, 245, 255, 0.2);
+}
+
+.slider-btn {
+    position: absolute;
+    width: 80px; height: 100px;
+    background: rgba(0, 245, 255, 0.1);
+    border: 1px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+    font-size: 32px;
+    border-radius: 40px;
+    display: flex; justify-content: center; align-items: center;
+    cursor: pointer;
+    box-shadow: inset 0 0 10px rgba(0, 245, 255, 0.2);
+    outline: none;
+    z-index: 5;
+}
+
+.slider-btn.active {
+    background: var(--neon-cyan);
+    color: var(--bg-dark);
+    box-shadow: 0 0 15px var(--neon-cyan);
+}
+
+.slider-btn.up { top: -10px; }
+.slider-btn.down { bottom: -10px; }
+
+/* Center Menu */
+#center-menu {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px 10px;
+    flex: 1;
+    max-width: 200px;
+    margin: 0 20px;
+}
+
+.menu-btn {
+    background: transparent;
+    border: 1px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+    font-family: var(--font-main);
+    padding: 10px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-align: center;
+}
+
+.menu-btn.active {
+    background: var(--neon-cyan);
+    color: var(--bg-dark);
+    box-shadow: 0 0 10px var(--neon-cyan);
+}

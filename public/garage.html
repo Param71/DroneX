@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DroneX - Garage</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/garage.css">
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+    </script>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <!-- Animated background grid -->
+    <div class="bg-grid"></div>
+
+    <!-- Session Panel -->
+    <div id="session-panel">
+        <div class="sp-label">SESSION CODE</div>
+        <div id="session-code-display">----</div>
+        <div id="session-status">WAITING FOR CONTROLLER...</div>
+        <button id="btn-phone-ui" class="btn-pill btn-accent">OPEN PHONE UI</button>
+        <div class="sp-row">
+            <button id="btn-refresh-code" class="btn-pill btn-ghost">REFRESH</button>
+            <button id="btn-copy-link" class="btn-pill btn-ghost">COPY LINK</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <header>
+        <h1 class="logo">Drone<span>X</span></h1>
+        <p class="tagline">CONFIGURE YOUR UNIT</p>
+    </header>
+
+    <main class="container">
+        <!-- Pilot Profile -->
+        <section class="panel" id="panel-pilot">
+            <h2><span class="panel-icon">👤</span> PILOT PROFILE</h2>
+            <input type="text" id="pilot-name" placeholder="ENTER CALLSIGN" maxlength="15" autocomplete="off">
+        </section>
+
+        <!-- Drone Selection -->
+        <section class="panel" id="panel-select">
+            <h2><span class="panel-icon">🛸</span> SELECT UNIT</h2>
+            <div class="drone-grid" id="drone-grid">
+                <!-- Populated by JS -->
+            </div>
+        </section>
+
+        <!-- Drone Intel -->
+        <section class="panel" id="panel-intel">
+            <div class="intel-header">
+                <div>
+                    <h2 id="intel-name" class="intel-drone-name">VORTEX-R</h2>
+                    <span id="intel-class" class="intel-badge">RACING QUAD</span>
+                </div>
+                <span id="intel-icon" class="intel-big-icon">⚡</span>
+            </div>
+            <p id="intel-desc" class="intel-desc">Maximum thrust, highest top speed, aggressive handling.</p>
+            <div class="stat-bars" id="stat-bars">
+                <div class="stat-row"><span class="stat-label">SPEED</span><div class="bar-track"><div class="bar-fill" id="bar-speed"></div></div><span class="stat-val" id="val-speed">95</span></div>
+                <div class="stat-row"><span class="stat-label">AGILITY</span><div class="bar-track"><div class="bar-fill" id="bar-agility"></div></div><span class="stat-val" id="val-agility">80</span></div>
+                <div class="stat-row"><span class="stat-label">ARMOR</span><div class="bar-track"><div class="bar-fill" id="bar-armor"></div></div><span class="stat-val" id="val-armor">30</span></div>
+                <div class="stat-row"><span class="stat-label">BATTERY</span><div class="bar-track"><div class="bar-fill" id="bar-battery"></div></div><span class="stat-val" id="val-battery">40</span></div>
+            </div>
+        </section>
+
+        <!-- Customization -->
+        <section class="panel" id="panel-custom">
+            <h2><span class="panel-icon">🎨</span> CUSTOMIZATION</h2>
+            <div class="custom-row">
+                <label class="custom-label">ACCENT COLOR</label>
+                <div class="color-options" id="color-options">
+                    <input type="color" id="drone-color" value="#00f5ff" class="color-picker-input">
+                    <button class="color-swatch" data-color="#00f5ff" style="background:#00f5ff" title="Cyan"></button>
+                    <button class="color-swatch" data-color="#39ff14" style="background:#39ff14" title="Neon Green"></button>
+                    <button class="color-swatch" data-color="#ff00e6" style="background:#ff00e6" title="Magenta"></button>
+                    <button class="color-swatch" data-color="#ffaa00" style="background:#ffaa00" title="Amber"></button>
+                    <button class="color-swatch" data-color="#8b5cf6" style="background:#8b5cf6" title="Violet"></button>
+                    <button class="color-swatch" data-color="#ef4444" style="background:#ef4444" title="Red"></button>
+                    <button class="color-swatch" data-color="#ffffff" style="background:#ffffff" title="White"></button>
+                </div>
+            </div>
+            <div class="preview-container" id="preview-container">
+                <!-- Three.js Canvas -->
+            </div>
+        </section>
+
+        <!-- Launch -->
+        <button class="btn-launch" id="btn-launch">
+            <span class="btn-launch-text">CONTINUE</span>
+            <span class="btn-launch-arrow">→</span>
+        </button>
+
+        <!-- Leaderboard -->
+        <section class="panel" id="panel-lb">
+            <h2><span class="panel-icon">🏆</span> GLOBAL LEADERBOARD</h2>
+            <div id="leaderboard-content">FETCHING SCORES...</div>
+        </section>
+    </main>
+
+    <script type="module" src="js/garageMain.js"></script>
+</body>
+</html>

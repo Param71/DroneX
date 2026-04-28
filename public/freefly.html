@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DroneX - Freefly</title>
+    
+    <script>
+        if (!localStorage.getItem('pilotName')) {
+            window.location.href = '/garage.html';
+        }
+    </script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/hud.css">
+    
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.10.1/nipplejs.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { transition: opacity 0.3s; }
+    </style>
+</head>
+<body>
+    <div id="loading-screen" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-color); z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--neon-cyan); font-family: var(--font-main);">
+        <h1 class="neon-title">DroneX : FREEFLY</h1>
+        <p style="margin-bottom: 20px;">GENERATING SCENERY...</p>
+        <div style="width: 300px; height: 5px; background: rgba(0, 245, 255, 0.2); border: 1px solid var(--neon-cyan);">
+            <div id="loading-bar-fill" style="width: 0%; height: 100%; background: var(--neon-cyan); transition: width 0.1s linear;"></div>
+        </div>
+        <p id="loading-text-complete" style="display:none; font-size: 1.5rem; animation: blink 1.5s infinite; cursor: pointer; margin-top: 20px;">CLICK TO INITIATE</p>
+    </div>
+
+    <div id="hud"></div>
+
+    <button id="btn-back-mode" style="position: fixed; top: 150px; left: 30px; pointer-events: auto; background-color: rgba(10,10,15,0.5); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); font-family: var(--font-main); font-size: 0.9rem; padding: 5px 10px; cursor: pointer; z-index: 11;">&#x2190; BACK</button>
+
+    <button id="btn-quality" style="position: fixed; top: 200px; left: 30px; pointer-events: auto; background-color: rgba(10,10,15,0.5); border: 1px solid #aaa; color: #aaa; font-family: var(--font-main); font-size: 0.9rem; padding: 5px 10px; cursor: pointer; z-index: 11;">PERF: HIGH</button>
+
+    <div id="fpv-overlay" style="display: none;">
+        <div id="fpv-label">FPV</div>
+    </div>
+
+    <script>
+        document.getElementById('btn-back-mode').addEventListener('click', () => {
+            document.body.style.opacity = '0';
+            setTimeout(() => window.location.href = '/mode-select.html', 300);
+        });
+    </script>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

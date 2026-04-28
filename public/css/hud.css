@@ -1,0 +1,245 @@
+/* HUD Container */
+#hud {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none; /* Let clicks pass through */
+    z-index: 10;
+    color: var(--neon-cyan);
+    font-family: var(--font-main);
+    text-shadow: 0 0 5px var(--neon-cyan);
+    background: linear-gradient(rgba(0, 245, 255, 0.02) 50%, rgba(0, 0, 0, 0) 50%);
+    background-size: 100% 4px;
+    animation: scanlines 10s linear infinite;
+}
+
+@keyframes scanlines {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 100vh; }
+}
+
+/* Common HUD element styling */
+.hud-element {
+    position: fixed;
+    background: rgba(10, 10, 15, 0.5);
+    border: 1px solid rgba(0, 245, 255, 0.3);
+    padding: 10px 15px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+#speed-val, #alt-val, #hud-heading-text, #hud-battery-text {
+    transition: color 0.3s, text-shadow 0.3s;
+}
+
+/* Speed Display (Bottom Left) */
+#hud-speed {
+    bottom: 30px;
+    left: 30px;
+    font-size: 2rem;
+}
+#hud-speed .unit { font-size: 1rem; opacity: 0.8; }
+
+/* Altitude Display (Bottom Right) */
+#hud-altitude {
+    bottom: 30px;
+    right: 30px;
+    font-size: 2rem;
+}
+#hud-altitude .unit { font-size: 1rem; opacity: 0.8; }
+
+/* Signal Status (Top Left) */
+#hud-signal-container {
+    top: 30px;
+    left: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    border: none;
+    background: none;
+    padding: 0;
+}
+#hud-signal {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+.flicker {
+    animation: signalFlicker 0.1s;
+}
+@keyframes signalFlicker {
+    0% { opacity: 1; }
+    50% { opacity: 0.2; }
+    100% { opacity: 1; }
+}
+#hud-pilot {
+    font-size: 1rem;
+    color: var(--neon-green);
+    text-shadow: 0 0 5px var(--neon-green);
+}
+
+/* Battery (Top Right) */
+#hud-battery-container {
+    top: 30px;
+    right: 30px;
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+.battery-outline {
+    width: 100%;
+    height: 15px;
+    border: 1px solid var(--neon-cyan);
+    padding: 2px;
+    box-sizing: border-box;
+    position: relative;
+}
+.battery-fill {
+    height: 100%;
+    width: 100%;
+    background-color: var(--neon-cyan);
+    box-shadow: 0 0 10px var(--neon-cyan);
+    transition: width 0.2s, background-color 0.2s, box-shadow 0.2s;
+}
+.battery-fill.warning {
+    background-color: var(--alert-red);
+    box-shadow: 0 0 10px var(--alert-red);
+}
+#hud-battery-text {
+    margin-top: 5px;
+    font-size: 1rem;
+}
+.text-warning {
+    color: var(--alert-red) !important;
+    text-shadow: 0 0 5px var(--alert-red) !important;
+    animation: blink 1s infinite;
+}
+
+/* Compass (Top Center) */
+#hud-compass {
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 250px;
+    text-align: center;
+    border-top: 2px solid var(--neon-cyan);
+    border-radius: 0;
+    padding-top: 5px;
+}
+.compass-tick {
+    display: inline-block;
+    width: 0; 
+    height: 0; 
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 15px solid var(--neon-green);
+    margin-bottom: 5px;
+}
+
+/* Mission Status (Center Top) */
+#hud-mission {
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.5rem;
+    color: var(--neon-green);
+    text-shadow: 0 0 10px var(--neon-green);
+    display: none; /* Hidden by default */
+    text-align: center;
+}
+
+/* Central Alert Text (Center Center) */
+#hud-alert {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
+    color: var(--alert-red);
+    text-shadow: 0 0 20px var(--alert-red);
+    display: none;
+    text-align: center;
+}
+
+/* FPV Button (Middle Right) */
+#btn-fpv-laptop {
+    position: fixed;
+    top: 50%;
+    right: 30px;
+    transform: translateY(-50%);
+    pointer-events: auto; /* Clickable */
+    background-color: rgba(10, 10, 15, 0.8);
+    border: 1px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+    font-family: var(--font-main);
+    font-size: 1.2rem;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-shadow: 0 0 5px var(--neon-cyan);
+    box-shadow: inset 0 0 10px rgba(0, 245, 255, 0.2);
+}
+#btn-fpv-laptop:hover {
+    background-color: rgba(0, 245, 255, 0.2);
+}
+
+/* FPV Overlay */
+#fpv-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    pointer-events: none;
+    z-index: 5; /* below HUD but above Canvas */
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), radial-gradient(rgba(0,0,0,0) 50%, rgba(0,0,0,0.8));
+    background-size: 100% 4px, 100% 100%;
+}
+#fpv-label {
+    position: absolute;
+    top: 30px; left: 50%; transform: translateX(-50%);
+    color: var(--alert-red);
+    font-family: var(--font-main);
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-shadow: 0 0 10px var(--alert-red);
+    animation: blink 1s infinite;
+}
+
+/* Minimap */
+#hud-minimap {
+    top: 100px;
+    right: 30px;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    padding: 0;
+    overflow: hidden;
+    background: rgba(10, 10, 15, 0.7);
+    border: 2px solid var(--neon-cyan);
+}
+#hud-minimap .minimap-bg {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 4px; height: 4px;
+    background: #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+#minimap-drone {
+    position: absolute;
+    width: 0; height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 12px solid var(--neon-cyan);
+    top: 50%; left: 50%;
+    transform-origin: 50% 50%;
+    transform: translate(-50%, -50%);
+}
+#minimap-ring {
+    position: absolute;
+    width: 8px; height: 8px;
+    background: var(--neon-green);
+    border-radius: 50%;
+    box-shadow: 0 0 5px var(--neon-green);
+    transform: translate(-50%, -50%);
+    transition: left 0.1s linear, top 0.1s linear;
+}
