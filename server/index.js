@@ -195,7 +195,7 @@ function getLocalIpAddress() {
     return '127.0.0.1';
 }
 
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
     const ip = getLocalIpAddress();
     console.log(`==========================================`);
     console.log(`🚀 DroneX Server is running!`);
