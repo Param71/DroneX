@@ -8,7 +8,8 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-const PORT = process.env.PORT || 3000;
+// Use Railway's dynamic port, or fallback to 3000/8080 for local development
+const PORT = process.env.PORT || 3000; 
 
 app.set('trust proxy', 1);
 
@@ -195,11 +196,8 @@ function getLocalIpAddress() {
     return '127.0.0.1';
 }
 
+// Bind to 0.0.0.0 to accept external connections
 server.listen(PORT, '0.0.0.0', () => {
-    const ip = getLocalIpAddress();
-    console.log(`==========================================`);
     console.log(`🚀 DroneX Server is running!`);
-    console.log(`💻 Simulation (Laptop): http://localhost:${PORT}`);
-    console.log(`📱 Controller (Phone):  http://${ip}:${PORT}/controller.html`);
-    console.log(`==========================================`);
+    console.log(`Listening on port: ${PORT}`);
 });
